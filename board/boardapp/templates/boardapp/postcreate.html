@@ -1,0 +1,18 @@
+{% extends 'layout/default.html' %}
+
+{% block title %}
+News create
+{% endblock title %}
+
+{% block content %}
+
+<h1>Создайте объявление</h1>
+
+<form method="POST">
+ {% csrf_token %}
+ {{ form }}
+   <br>
+   <input class="btn btn-success" type="submit" value="Сохранить">
+</form>
+
+{% endblock content %}
