@@ -1,12 +1,11 @@
 from django.forms import ModelForm
-from .models import Post
+from .models import Post, Reply
 from django import forms
 from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
-# Создаём модельную форму
+
 class PostForm(ModelForm):
-  # В класс мета, как обычно, надо написать модель, по которой будет строиться форма, и нужные нам поля. Мы уже делали что-то похожее с фильтрами
-  content = forms.CharField(widget=SummernoteWidget())
+  content = forms.CharField(widget=SummernoteWidget(), label='Текст')
   
   class Meta:
     model = Post
@@ -16,4 +15,19 @@ class PostForm(ModelForm):
         'categoryType' : forms.Select(attrs={'class': 'form-control',}),
         'title' : forms.TextInput(attrs={'type': 'text', 'class': 'form-control', }),
         # 'content' : forms.Textarea(attrs={'class': 'form-control',})
+    }
+    labels = {
+      'categoryType': 'Категория объявления',
+      'title': 'Заголовок объявления',
+    }
+
+class ReplyForm(ModelForm):
+  class Meta:
+    model = Reply
+    fields = ['text']
+    widgets = {
+        'text' : forms.Textarea(attrs={'class': 'form-control',})
+    }
+    labels = {
+      'text': 'Введите текст отзыва',
     }
