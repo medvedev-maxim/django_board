@@ -29,5 +29,5 @@ class ReplyForm(ModelForm):
         'text' : forms.Textarea(attrs={'class': 'form-control',})
     }
     labels = {
-      'text': 'Введите текст отзыва',
+      'text': 'Введите текст отклика',
     }

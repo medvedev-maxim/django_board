@@ -11,52 +11,59 @@ Posts
         <input class="btn btn-primary" type="submit" value="Найти">
     </form>
     
-    {% if posts %}
+    {% if replys %}
         <table  class="table table-hover">
             <tr>
-                <th scope="col">
-                    Заголовок
+                <th scope="col" class="col-2">
+                    Мое объявление
                 </th>
-                <th scope="col">
-                    Дата публикации
+                <th scope="col" class="col-5">
+                    Отклик
                 </th>
-                <th scope="col">
+                <th scope="col" class="col-1">
                     Автор
                 </th>
-                <th scope="col">
-                    Категория
+                <th scope="col" class="col-2">
+                    Дата публикации
                 </th>
                 <!-- <th scope="col">
-                    Действия
+                    Принят
                 </th> -->
+                <th scope="col" class="col-2">
+                    
+                </th>
             </tr>
             {% for p in filter.qs %}
             <tr>
                 <td>
-                    <a href="{% url 'post_detail' p.id %}">
-                        {{p.title}}
-                    </a>
+                    {{p.feedbackPost.title}}
+                </td>
+                <td>
+                    {{p.text}}
+                </td>
+                <td>
+                    {{p.feedbackUser.username}}
                 </td>
                 <td>
                     {{p.dateCreation|date:'d-m-Y h:m'}}
                 </td>
-                <td>
-                    {{p.user.username}}
-                </td>
-                <td>
-                    {{p.get_categoryType_display}}
-                </td>
                 <!-- <td>
-                    <a href="">
-                        Отзыв
+                    {{p.acceptStatus}}
+                </td> -->
+                <td>
+                    {% if not p.acceptStatus %}
+                    <a class="btn btn-success" role="button" href="{% url 'accept_reply' p.id %}">
+                        Принять
                     </a>
-                    <a href="{% url 'post_update' p.id %}">
-                        Изменить
-                    </a> 
-                    <a href="{% url 'post_delete' p.id %}">
+                    {% else %}
+                    ✅ Принят
+                    {% endif %}
+                    {% if not p.acceptStatus %}
+                    <a class="btn btn-danger" role="button" href="{% url 'delete_reply' p.id %}">
                         Удалить
                     </a>
-                </td> -->
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </table>

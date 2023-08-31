@@ -18,11 +18,11 @@
     </div>
     <div class="card-footer text-body-secondary">
         <a href="{% url 'post_update' post.id %}" class="card-link">Изменить</a>
-        <a href="{% url 'post_update' post.id %}" class="card-link">Удалить</a>
+        <a href="{% url 'post_delete' post.id %}" class="card-link">Удалить</a>
     </div>
 </div>
 <br>
-<h3>Оставить отзыв</h3>
+<h3>Оставить отклик</h3>
 <form method="POST">
     {% csrf_token %}
     {{ form }}

@@ -1,11 +1,11 @@
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Post, Reply
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView
-from .filters import PostFilter
+from .filters import PostFilter, ReplyFilter
 from .forms import PostForm, ReplyForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 class PostList(ListView):
     model = Post
@@ -19,6 +19,23 @@ class PostList(ListView):
         context = super().get_context_data(**kwargs)
         context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset()) # вписываем наш фильтр в контекст
         return context
+    
+class ReplyList(ListView):
+    model = Reply
+    template_name='boardapp/replylist.html'
+    context_object_name='replys'
+    ordering = ['-dateCreation']
+    paginate_by = 10
+    # метод get_context_data нужен нам для того, чтобы мы могли передать переменные в шаблон. В возвращаемом словаре context будут храниться все переменные. Ключи этого словари и есть переменные, к которым мы сможем потом обратиться через шаблон
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Reply.objects.filter(feedbackPost__user=user)
+    
+    def get_context_data(self, **kwargs): # забираем отфильтрованные объекты переопределяя метод get_context_data у наследуемого класса (привет, полиморфизм, мы скучали!!!)
+        context = super().get_context_data(**kwargs)
+        context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset()) # вписываем наш фильтр в контекст
+        return context
 
 # class PostDetail(DetailView):
 #     model = Post
@@ -30,6 +47,7 @@ class PostDetail(FormView, DetailView):
     form_class = ReplyForm
     template_name='boardapp/postdetail.html'
     context_object_name='post'
+    # success_url = reverse_lazy('success')
     success_url = '/'
 
     def get_context_data(self, **kwargs):
@@ -42,6 +60,7 @@ class PostDetail(FormView, DetailView):
         form.instance.feedbackPost = self.get_object()
         form.save()
         return super().form_valid(form)
+
 
 class PostCreateView(CreateView):
     template_name = 'boardapp/postcreate.html'
@@ -65,12 +84,13 @@ class PostDeleteView(DeleteView):
     queryset = Post.objects.all()
     success_url = '/'
 
-# class ReplyCreate(CreateView):
-#     model = Reply
-#     template_name = 'boardapp/postcreate.html'
-#     form_class = ReplyForm
-#     success_url = '/'
+def accept_reply(request, pk):
+    reply = Reply.objects.get(pk=pk)
+    reply.accept()
+    reply.save()
+    return redirect('reply_list')
 
-    # def form_valid(self, form: BaseModelForm) -> HttpResponse:
-    #     form.instance.user = self.request.user
-    #     return super().form_valid(form)
+def delete_reply(request, pk):
+    reply = Reply.objects.get(pk=pk)
+    reply.delete()
+    return redirect('reply_list')

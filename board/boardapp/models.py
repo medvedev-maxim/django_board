@@ -45,7 +45,6 @@ class Reply(models.Model):
     feedbackUser = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_replys')
     feedbackPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_replys' )
     
-    title = models.CharField(max_length=128)
     acceptStatus = models.BooleanField(default=False)
     text = models.TextField()
     dateCreation = models.DateTimeField(auto_now_add=True)
@@ -55,5 +54,5 @@ class Reply(models.Model):
             self.acceptStatus = True
     
     def __str__(self):
-        return f'Комментарий #{self.pk} от {self.feedbackUser.last_name}'
+        return f'Комментарий #{self.pk} от {self.feedbackUser.username}'
 
