@@ -55,21 +55,21 @@ class ReplyList(LoginRequiredMixin, ListView):
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
+    #     filtered_reply = context['filter'].qs
+    #     paginator = Paginator(filtered_reply, self.paginate_by)
+    #     page = self.request.GET.get('page')
+    #     try:
+    #         reply = paginator.page(page)
+    #     except PageNotAnInteger:
+    #         reply = paginator.page(1)
+    #     except EmptyPage:
+    #         reply = paginator.page(paginator.num_pages)
+    #     context['reply'] = reply
     #     return context
-	
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
-        filtered_reply = context['filter'].qs
-        paginator = Paginator(filtered_reply, self.paginate_by)
-        page = self.request.GET.get('page')
-        try:
-            reply = paginator.page(page)
-        except PageNotAnInteger:
-            reply = paginator.page(1)
-        except EmptyPage:
-            reply = paginator.page(paginator.num_pages)
-        context['reply'] = reply
         return context
 
 

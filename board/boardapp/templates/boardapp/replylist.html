@@ -5,7 +5,7 @@ Posts
 {% endblock title %}
  
 {% block content %}
-    <h1>Все объявления</h1>
+    <h1>Отклики на мои объявления</h1>
     <form method="GET">
         {{ filter.form }}
         <input class="btn btn-primary" type="submit" value="Найти">
@@ -33,7 +33,7 @@ Posts
                     
                 </th>
             </tr>
-            {% for p in replys %}
+            {% for p in filter.qs %}
             <tr>
                 <td>
                     {{p.feedbackPost.title}}
@@ -68,9 +68,7 @@ Posts
             {% endfor %}
         </table>
        
-        <!-- Заменили код пагинатора на подключение шаблона с этим кодом -->
-        {% include 'boardapp/parts/paginator.html' %}
-    
+        <!-- Заменили код пагинатора на подключение шаблона с этим кодом -->    
         {% else %}
         <h3>Нет объявлений</h3>
     {% endif %}
