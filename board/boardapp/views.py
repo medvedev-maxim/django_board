@@ -7,6 +7,8 @@ from .filters import PostFilter, ReplyFilter
 from .forms import PostForm, ReplyForm
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 class PostList(ListView):
     model = Post
@@ -38,7 +40,7 @@ class PostList(ListView):
         context['posts'] = posts
         return context
     
-class ReplyList(ListView):
+class ReplyList(LoginRequiredMixin, ListView):
     model = Reply
     template_name='boardapp/replylist.html'
     context_object_name='replys'
@@ -76,7 +78,7 @@ class ReplyList(ListView):
 #     template_name='boardapp/postdetail.html'
 #     context_object_name='post'
 
-class PostDetail(FormView, DetailView):
+class PostDetail(LoginRequiredMixin, FormView, DetailView):
     model = Post
     form_class = ReplyForm
     template_name='boardapp/postdetail.html'
@@ -96,7 +98,7 @@ class PostDetail(FormView, DetailView):
         return super().form_valid(form)
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     template_name = 'boardapp/postcreate.html'
     form_class = PostForm
     success_url = '/'
@@ -105,7 +107,7 @@ class PostCreateView(CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'boardapp/postcreate.html'
     form_class = PostForm
     success_url = '/'
@@ -113,10 +115,16 @@ class PostUpdateView(UpdateView):
         id = self.kwargs.get('pk')
         return Post.objects.get(pk=id)
    
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'boardapp/postdelete.html'
     queryset = Post.objects.all()
     success_url = '/'
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Фильтрация объектов только для текущего пользователя
+        queryset = queryset.filter(author=self.request.user)
+        return queryset
+
 
 def accept_reply(request, pk):
     reply = Reply.objects.get(pk=pk)

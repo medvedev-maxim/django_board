@@ -16,11 +16,14 @@
         <p class="card-text"><small class="text-body-secondary">{{ post.dateCreation|date:'d-m-Y h:m' }} — {{ post.user.username }}</small></p>
         <p class="card-text">{{ post.content | safe }}</p>
     </div>
+    {% if post.user == request.user %}
     <div class="card-footer text-body-secondary">
         <a href="{% url 'post_update' post.id %}" class="card-link">Изменить</a>
         <a href="{% url 'post_delete' post.id %}" class="card-link">Удалить</a>
     </div>
+    {% endif %}
 </div>
+{% if post.user != request.user %}
 <br>
 <h3>Оставить отклик</h3>
 <form method="POST">
@@ -29,5 +32,6 @@
     <br>
     <input class="btn btn-success" type="submit" value="Сохранить отзыв">
 </form>
+{% endif %}
 
 {% endblock content %}
