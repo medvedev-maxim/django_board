@@ -6,6 +6,7 @@ from django.views.generic import ListView, DetailView, UpdateView, CreateView, D
 from .filters import PostFilter, ReplyFilter
 from .forms import PostForm, ReplyForm
 from django.urls import reverse_lazy, reverse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class PostList(ListView):
     model = Post
@@ -14,10 +15,27 @@ class PostList(ListView):
     # queryset = Post.objects.order_by('-dateCreation')
     ordering = ['-dateCreation'] # сортировка с помощью дженерика
     paginate_by = 10
+
     # метод get_context_data нужен нам для того, чтобы мы могли передать переменные в шаблон. В возвращаемом словаре context будут храниться все переменные. Ключи этого словари и есть переменные, к которым мы сможем потом обратиться через шаблон
-    def get_context_data(self, **kwargs): # забираем отфильтрованные объекты переопределяя метод get_context_data у наследуемого класса (привет, полиморфизм, мы скучали!!!)
+    # def get_context_data(self, **kwargs): # забираем отфильтрованные объекты переопределяя метод get_context_data у наследуемого класса (привет, полиморфизм, мы скучали!!!)
+    #     context = super().get_context_data(**kwargs)
+    #     context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset()) # вписываем наш фильтр в контекст
+    #     return context
+    
+    # Совмещение фильтрации и пагинации
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset()) # вписываем наш фильтр в контекст
+        context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset())
+        filtered_posts = context['filter'].qs
+        paginator = Paginator(filtered_posts, self.paginate_by)
+        page = self.request.GET.get('page')
+        try:
+            posts = paginator.page(page)
+        except PageNotAnInteger:
+            posts = paginator.page(1)
+        except EmptyPage:
+            posts = paginator.page(paginator.num_pages)
+        context['posts'] = posts
         return context
     
 class ReplyList(ListView):
@@ -32,10 +50,26 @@ class ReplyList(ListView):
         user = self.request.user
         return Reply.objects.filter(feedbackPost__user=user)
     
-    def get_context_data(self, **kwargs): # забираем отфильтрованные объекты переопределяя метод get_context_data у наследуемого класса (привет, полиморфизм, мы скучали!!!)
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
+    #     return context
+	
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset()) # вписываем наш фильтр в контекст
+        context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
+        filtered_reply = context['filter'].qs
+        paginator = Paginator(filtered_reply, self.paginate_by)
+        page = self.request.GET.get('page')
+        try:
+            reply = paginator.page(page)
+        except PageNotAnInteger:
+            reply = paginator.page(1)
+        except EmptyPage:
+            reply = paginator.page(paginator.num_pages)
+        context['reply'] = reply
         return context
+
 
 # class PostDetail(DetailView):
 #     model = Post

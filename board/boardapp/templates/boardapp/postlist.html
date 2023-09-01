@@ -26,11 +26,8 @@ Posts
                 <th scope="col">
                     Категория
                 </th>
-                <!-- <th scope="col">
-                    Действия
-                </th> -->
             </tr>
-            {% for p in filter.qs %}
+            {% for p in posts %}
             <tr>
                 <td>
                     <a href="{% url 'post_detail' p.id %}">
@@ -46,17 +43,6 @@ Posts
                 <td>
                     {{p.get_categoryType_display}}
                 </td>
-                <!-- <td>
-                    <a href="">
-                        Отзыв
-                    </a>
-                    <a href="{% url 'post_update' p.id %}">
-                        Изменить
-                    </a> 
-                    <a href="{% url 'post_delete' p.id %}">
-                        Удалить
-                    </a>
-                </td> -->
             </tr>
             {% endfor %}
         </table>
