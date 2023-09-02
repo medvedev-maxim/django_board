@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PostList, PostDetail, PostCreateView, PostUpdateView, PostDeleteView, ReplyList, accept_reply, delete_reply
+from .views import PostList, PostDetail, PostCreateView, PostUpdateView, PostDeleteView, ReplyList, accept_reply, delete_reply, AddReplySuccess, usual_login_viev
 from django.conf.urls.static import static
  
 urlpatterns = [
@@ -12,4 +12,6 @@ urlpatterns = [
     path('replys/', ReplyList.as_view(), name='reply_list'),
     path('replys/delete/<int:pk>/', delete_reply, name='delete_reply'),
     path('replys/accept/<int:pk>/', accept_reply, name='accept_reply'),
+    path('add_reply_success/', AddReplySuccess.as_view(), name='add_reply_success'),
+    path('sign/', usual_login_viev, name='sign'),
 ]

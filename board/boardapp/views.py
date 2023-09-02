@@ -2,7 +2,7 @@ from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Post, Reply
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView, TemplateView
 from .filters import PostFilter, ReplyFilter
 from .forms import PostForm, ReplyForm
 from django.urls import reverse_lazy, reverse
@@ -54,21 +54,6 @@ class ReplyList(LoginRequiredMixin, ListView):
         user = self.request.user
         return Reply.objects.filter(feedbackPost__user=user).order_by('-dateCreation')
     
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
-    #     filtered_reply = context['filter'].qs
-    #     paginator = Paginator(filtered_reply, self.paginate_by)
-    #     page = self.request.GET.get('page')
-    #     try:
-    #         reply = paginator.page(page)
-    #     except PageNotAnInteger:
-    #         reply = paginator.page(1)
-    #     except EmptyPage:
-    #         reply = paginator.page(paginator.num_pages)
-    #     context['reply'] = reply
-    #     return context
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filter'] = ReplyFilter(self.request.GET, queryset=self.get_queryset())
@@ -80,8 +65,7 @@ class PostDetail(LoginRequiredMixin, FormView, DetailView):
     form_class = ReplyForm
     template_name='boardapp/postdetail.html'
     context_object_name='post'
-    # success_url = reverse_lazy('success')
-    success_url = '/'
+    success_url = reverse_lazy('add_reply_success')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,7 +121,6 @@ def accept_reply(request, pk):
     reply.accept()
     reply.save()
 
-    # print('ПРОВЕРКА','\n',request,'\n', pk)
     # Отправка письма из вьюхи, заменена на сигнал  
     # send_mail( 
     #     subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОДОБРЕН!',
@@ -161,3 +144,10 @@ def delete_reply(request, pk):
     # )  
     
     return redirect('reply_list')
+
+# def usual_login_viev(request):
+#     username = request.POST['username']
+#     password = request.POST['password']
+
+class AddReplySuccess(TemplateView):
+    template_name = 'boardapp/add_reply_success.html'
