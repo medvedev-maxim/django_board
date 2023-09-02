@@ -8,6 +8,8 @@ from .forms import PostForm, ReplyForm
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
+from django.core.mail import send_mail
 
 
 class PostList(ListView):
@@ -46,11 +48,10 @@ class ReplyList(LoginRequiredMixin, ListView):
     context_object_name='replys'
     ordering = ['-dateCreation']
     paginate_by = 10
-    # метод get_context_data нужен нам для того, чтобы мы могли передать переменные в шаблон. В возвращаемом словаре context будут храниться все переменные. Ключи этого словари и есть переменные, к которым мы сможем потом обратиться через шаблон
     
     def get_queryset(self):
         user = self.request.user
-        return Reply.objects.filter(feedbackPost__user=user)
+        return Reply.objects.filter(feedbackPost__user=user).order_by('-dateCreation')
     
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -73,11 +74,6 @@ class ReplyList(LoginRequiredMixin, ListView):
         return context
 
 
-# class PostDetail(DetailView):
-#     model = Post
-#     template_name='boardapp/postdetail.html'
-#     context_object_name='post'
-
 class PostDetail(LoginRequiredMixin, FormView, DetailView):
     model = Post
     form_class = ReplyForm
@@ -95,6 +91,14 @@ class PostDetail(LoginRequiredMixin, FormView, DetailView):
         form.instance.feedbackUser = self.request.user
         form.instance.feedbackPost = self.get_object()
         form.save()
+
+        # print('ПРОВЕРКА','\n',self.request.META)
+        send_mail( 
+            subject=f'{self.request.user} оставил отклик на вопрос "{form.instance.feedbackPost.title}"',
+            message=f'"{self.request.POST["text"]}"\n\nОбработайте этот отклик и проверьте другие в разделе http://{self.request.META["HTTP_HOST"]}/replys/',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[form.instance.feedbackPost.user.email]
+        )
         return super().form_valid(form)
 
 
@@ -130,9 +134,27 @@ def accept_reply(request, pk):
     reply = Reply.objects.get(pk=pk)
     reply.accept()
     reply.save()
+
+    # print('ПРОВЕРКА','\n',request,'\n', pk)
+    
+    send_mail( 
+        subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОДОБРЕН!',
+        message=f'Ваш отклик "{reply.text}" был ОДОБРЕН!\nСвяжитесь с автором объявления по адресу {reply.feedbackPost.user.email}',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[reply.feedbackUser.email]
+    )  
+    
     return redirect('reply_list')
 
 def delete_reply(request, pk):
     reply = Reply.objects.get(pk=pk)
     reply.delete()
+
+    send_mail( 
+        subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОТКЛОНЕН!',
+        message=f'Ваш отклик "{reply.text}" был ОТКЛОНЕН и УДАЛЕН!\nПопробуйте предложенить другой вариант',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[reply.feedbackUser.email]
+    )  
+    
     return redirect('reply_list')

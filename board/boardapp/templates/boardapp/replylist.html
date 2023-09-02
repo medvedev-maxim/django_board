@@ -45,7 +45,7 @@ Posts
                     {{p.feedbackUser.username}}
                 </td>
                 <td>
-                    {{p.dateCreation|date:'d-m-Y h:m'}}
+                    {{p.dateCreation|date:'d-m-Y H:i'}}
                 </td>
                 <!-- <td>
                     {{p.acceptStatus}}
@@ -58,11 +58,9 @@ Posts
                     {% else %}
                     ✅ Принят
                     {% endif %}
-                    {% if not p.acceptStatus %}
                     <a class="btn btn-danger" role="button" href="{% url 'delete_reply' p.id %}">
                         Удалить
                     </a>
-                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
