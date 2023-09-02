@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     #########
     # User apps
     #########
-    'boardapp',
+    'boardapp.apps.BoardappConfig',
 ]
 
 MIDDLEWARE = [
@@ -161,6 +161,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 # ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 EMAIL_SUBJECT_PREFIX = '[Django_board]'

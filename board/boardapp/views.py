@@ -10,6 +10,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.mail import send_mail
+from django.dispatch import receiver
 
 
 class PostList(ListView):
@@ -92,13 +93,14 @@ class PostDetail(LoginRequiredMixin, FormView, DetailView):
         form.instance.feedbackPost = self.get_object()
         form.save()
 
+        # Отправка письма из вьюхи, заменена на сигнал
         # print('ПРОВЕРКА','\n',self.request.META)
-        send_mail( 
-            subject=f'{self.request.user} оставил отклик на вопрос "{form.instance.feedbackPost.title}"',
-            message=f'"{self.request.POST["text"]}"\n\nОбработайте этот отклик и проверьте другие в разделе http://{self.request.META["HTTP_HOST"]}/replys/',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[form.instance.feedbackPost.user.email]
-        )
+        # send_mail( 
+        #     subject=f'{self.request.user} оставил отклик на объявление "{form.instance.feedbackPost.title}"',
+        #     message=f'"{self.request.POST["text"]}"\n\nОбработайте этот отклик и проверьте другие в разделе http://{self.request.META["HTTP_HOST"]}/replys/',
+        #     from_email=settings.DEFAULT_FROM_EMAIL,
+        #     recipient_list=[form.instance.feedbackPost.user.email]
+        # )
         return super().form_valid(form)
 
 
@@ -136,25 +138,26 @@ def accept_reply(request, pk):
     reply.save()
 
     # print('ПРОВЕРКА','\n',request,'\n', pk)
-    
-    send_mail( 
-        subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОДОБРЕН!',
-        message=f'Ваш отклик "{reply.text}" был ОДОБРЕН!\nСвяжитесь с автором объявления по адресу {reply.feedbackPost.user.email}',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[reply.feedbackUser.email]
-    )  
+    # Отправка письма из вьюхи, заменена на сигнал  
+    # send_mail( 
+    #     subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОДОБРЕН!',
+    #     message=f'Ваш отклик "{reply.text}" был ОДОБРЕН!\nСвяжитесь с автором объявления по адресу {reply.feedbackPost.user.email}',
+    #     from_email=settings.DEFAULT_FROM_EMAIL,
+    #     recipient_list=[reply.feedbackUser.email]
+    # )  
     
     return redirect('reply_list')
 
 def delete_reply(request, pk):
     reply = Reply.objects.get(pk=pk)
     reply.delete()
-
-    send_mail( 
-        subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОТКЛОНЕН!',
-        message=f'Ваш отклик "{reply.text}" был ОТКЛОНЕН и УДАЛЕН!\nПопробуйте предложенить другой вариант',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[reply.feedbackUser.email]
-    )  
+    
+    # Отправка письма из вьюхи, заменена на сигнал  
+    # send_mail( 
+    #     subject=f'Ваш отклик на "{reply.feedbackPost.title}" ОТКЛОНЕН!',
+    #     message=f'Ваш отклик "{reply.text}" был ОТКЛОНЕН и УДАЛЕН!\nПопробуйте предложенить другой вариант',
+    #     from_email=settings.DEFAULT_FROM_EMAIL,
+    #     recipient_list=[reply.feedbackUser.email]
+    # )  
     
     return redirect('reply_list')
