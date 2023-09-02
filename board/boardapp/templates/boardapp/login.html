@@ -5,24 +5,25 @@
  Войти в систему
 </h1>
 
-<form method="post" action="{% url 'login' %}" class="py-3">
+<form method="post" class="py-3">
 
- {% csrf_token %}
+    {% csrf_token %}
+   
+    <table>
+      <tr>
+        <td style="padding: 10px">{{ form.username.label_tag }}</td>
+        <td style="padding: 10px">{{ form.username }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px">{{ form.password.label_tag }}</td>
+        <td style="padding: 10px">{{ form.password }}</td>
+      </tr>
+    </table>
+   
+    <button type="submit" class="btn btn-primary">
+      Вход
+    </button>
 
- <table>
-   <tr>
-     <td>{{ form.username.label_tag }}</td>
-     <td>{{ form.username }}</td>
-   </tr>
-   <tr>
-     <td>{{ form.password.label_tag }}</td>
-     <td>{{ form.password }}</td>
-   </tr>
- </table>
-
- <button type="submit" class="btn btn-primary">
-   Вход
- </button>
-</form><a class="btn btn-secondary" href="/sign/signup/"> Регистрация </a>
+</form><a class="btn btn-secondary" href="/signup/"> Регистрация </a>
 
 {% endblock content %}

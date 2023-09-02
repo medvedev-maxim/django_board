@@ -1,0 +1,22 @@
+{% extends "layout/default.html" %}
+
+{% block title %}
+Register
+{% endblock title %}
+
+{% block content %}
+<h2>
+ Регистрация
+</h2>
+<form method="post">
+{% csrf_token %}
+    <table>
+        {{ form.as_div }}
+    </table>
+    <br>
+    <button type="submit" class="btn btn-primary">
+        Регистрация
+    </button>
+    <!-- <input type="submit" value="Send"> -->
+</form>
+{% endblock content %}

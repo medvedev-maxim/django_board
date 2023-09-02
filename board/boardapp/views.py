@@ -1,16 +1,19 @@
 from django.forms.models import BaseModelForm
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Post, Reply
+from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView, TemplateView
 from .filters import PostFilter, ReplyFilter
-from .forms import PostForm, ReplyForm
+from .forms import PostForm, ReplyForm, RegisterForm, LoginForm
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.mail import send_mail
 from django.dispatch import receiver
+from django.contrib.auth import authenticate, login, logout
 
 
 class PostList(ListView):
@@ -145,9 +148,42 @@ def delete_reply(request, pk):
     
     return redirect('reply_list')
 
-# def usual_login_viev(request):
-#     username = request.POST['username']
-#     password = request.POST['password']
-
 class AddReplySuccess(TemplateView):
     template_name = 'boardapp/add_reply_success.html'
+
+
+class RegisterView(CreateView):
+    model = User
+    form_class = RegisterForm
+    template_name = 'boardapp/signup.html'
+    success_url = '/'
+    '''
+    Дополнительно можно включить пользователя в группу по умолчанию на этапе регистрации. Такая группа должна быть создана в БД, иначе появится сообщение об ошибке.
+    Для внесения дополнительных изменений на этапе создания записи в БД следует переопределить метод form_valid как показано ниже:
+    '''
+    def form_valid(self, form):
+        user = form.save()
+        user.save()
+        return super().form_valid(form)
+
+
+class LoginView(FormView):
+   model = User
+   form_class = LoginForm
+   template_name = 'boardapp/login.html'
+   success_url = '/'
+  
+   def form_valid(self, form):
+       username = form.cleaned_data.get('username')
+       password = form.cleaned_data.get('password')
+       user = authenticate(self.request,username=username, password=password)
+       if user is not None:
+           login(self.request, user)
+       return super().form_valid(form)
+
+class LogoutView(LoginRequiredMixin, TemplateView):
+    template_name = 'boardapp/logout.html'
+    
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)

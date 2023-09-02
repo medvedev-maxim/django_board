@@ -37,11 +37,13 @@
                         </li>                    
                         {% if not user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/accounts/login/">Вход</a>
+                            <!-- <a class="nav-link" href="/accounts/login/">Вход</a> -->
+                            <a class="nav-link" href="/sign/">Вход</a>
                         </li>
                         {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/accounts/logout/">Выход</a>
+                            <!-- <a class="nav-link" href="/accounts/logout/">Выход</a> -->
+                            <a class="nav-link" href="/logout/">Выход</a>
                         </li>                        
                         {% endif %}
                     </ul>
