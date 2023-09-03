@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рассылка новых постов</title>
+</head>
+<body>
+    
+<h1>
+    Привет! Лови список новых постов
+</h1>
+
+{% for p in post %}
+<a href="http://127.0.0.1:8000{% url 'post_detail' p.id %}">{{p.title}}</a>
+{% endfor %}
+
+
+</body>
+</html>

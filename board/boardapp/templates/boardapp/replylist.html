@@ -15,10 +15,10 @@ Posts
         <table  class="table table-hover">
             <tr>
                 <th scope="col" class="col-2">
-                    Мое объявление
+                    Объявление
                 </th>
                 <th scope="col" class="col-5">
-                    Отклик
+                    Текст отклика
                 </th>
                 <th scope="col" class="col-1">
                     Автор
@@ -36,7 +36,9 @@ Posts
             {% for p in filter.qs %}
             <tr>
                 <td>
-                    {{p.feedbackPost.title}}
+                    <a href="{% url 'post_detail' p.feedbackPost.id %}">
+                        {{p.feedbackPost.title}}
+                    </a>
                 </td>
                 <td>
                     {{p.text}}

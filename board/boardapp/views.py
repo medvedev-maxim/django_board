@@ -170,20 +170,18 @@ class RegisterView(CreateView):
         
         lastCode = UserRegisterCode.objects.filter(userCode = userCode).first()
 
-        # print(lastCode)
-
         if lastCode is not None:
             lastCode.code = code
             lastCode.code.save()
         else:
             UserRegisterCode.objects.create(userCode = userCode, code = code)
 
-        send_mail( 
-            subject=f'Код для завершения регистрации на сайте',
-            message=f'Для завершения регистрации на странице http://{self.request.META["HTTP_HOST"]}/sign/code введите следующий код:\n\n  {code}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email]
-        )          
+        # send_mail( 
+        #     subject=f'Код для завершения регистрации на сайте',
+        #     message=f'Для завершения регистрации на странице http://{self.request.META["HTTP_HOST"]}/sign/code введите следующий код:\n\n  {code}',
+        #     from_email=settings.DEFAULT_FROM_EMAIL,
+        #     recipient_list=[email]
+        # )          
 
         return super().form_valid(form)
 
@@ -231,7 +229,7 @@ class СheckingCode(FormView):
             
             user = authenticate(self.request, username=username, password=password)
 
-            print (username,password,verify,user,"-",verify.userCode.is_active,"-")
+            # print (username,password,verify,user,"-",verify.userCode.is_active,"-")
 
             if user is not None:
                 login(self.request, user)
