@@ -175,5 +175,5 @@ EMAIL_USE_SSL = True # Яндекс использует ssl, подробнее
 SERVER_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
-# if DEBUG:
-#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

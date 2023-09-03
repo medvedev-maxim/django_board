@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.dispatch import receiver
 from django.contrib.auth import authenticate, login, logout
+from django.utils.crypto import get_random_string
 
 
 class PostList(ListView):
@@ -157,13 +158,20 @@ class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'boardapp/signup.html'
     success_url = '/'
-    '''
-    Дополнительно можно включить пользователя в группу по умолчанию на этапе регистрации. Такая группа должна быть создана в БД, иначе появится сообщение об ошибке.
-    Для внесения дополнительных изменений на этапе создания записи в БД следует переопределить метод form_valid как показано ниже:
-    '''
+
     def form_valid(self, form):
+        code = get_random_string(length=6)
         user = form.save()
+        email = form.cleaned_data['email']
         user.save()
+
+        send_mail( 
+            subject=f'Код для завершения регистрации на сайте',
+            message=f'Для завершения регистрации на странице http://{self.request.META["HTTP_HOST"]}/new введите следующий код:\n\n  {code}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email]
+        )          
+
         return super().form_valid(form)
 
 
