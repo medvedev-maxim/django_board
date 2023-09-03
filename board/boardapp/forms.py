@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Post, Reply, User
+from .models import Post, Reply, User, UserRegisterCode
 from django import forms
 from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 from allauth.account.forms import SignupForm
@@ -52,8 +52,8 @@ class RegisterForm(UserCreationForm):
       "password2",
     )
     widgets = {
-      'username': forms.TextInput(attrs={'class': 'form-control'}),
-      'email': forms.EmailInput(attrs={'class': 'form-control'}),
+      'username': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+      'email': forms.EmailInput(attrs={'class': 'form-control', 'required': 'required'}),
       # 'password1': forms.PasswordInput(attrs={'class': 'form-control'}), # Для паролей виджет не работает. Чтобы задать атрибуты, например, название класса, следует использовать поле модели, как показано выше.
       # 'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
     }
@@ -68,9 +68,14 @@ class RegisterForm(UserCreationForm):
       return super().clean()
 
 class LoginForm(AuthenticationForm):
-    class Meta:
-       model = User
-       fields = (
-         "username",
-         "password",
-           )
+  class Meta:
+      model = User
+      fields = (
+        "username",
+        "password",
+          )
+       
+class СheckingCodeForm(forms.Form):
+  username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), label='Username')
+  password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), label='Пароль')
+  code = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), label='Код')

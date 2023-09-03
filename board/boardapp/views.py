@@ -2,11 +2,11 @@ from django.forms.models import BaseModelForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .models import Post, Reply
+from .models import Post, Reply, UserRegisterCode
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView, TemplateView
 from .filters import PostFilter, ReplyFilter
-from .forms import PostForm, ReplyForm, RegisterForm, LoginForm
+from .forms import PostForm, ReplyForm, RegisterForm, LoginForm, СheckingCodeForm
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -154,20 +154,33 @@ class AddReplySuccess(TemplateView):
 
 
 class RegisterView(CreateView):
-    model = User
+    model = User, UserRegisterCode
     form_class = RegisterForm
     template_name = 'boardapp/signup.html'
-    success_url = '/'
+    success_url = reverse_lazy('sign_code')
 
     def form_valid(self, form):
-        code = get_random_string(length=6)
         user = form.save()
         email = form.cleaned_data['email']
+        user.is_active = False
         user.save()
+        
+        userCode = User.objects.get(username=form.cleaned_data['username'])
+        code = get_random_string(length=6)
+        
+        lastCode = UserRegisterCode.objects.filter(userCode = userCode).first()
+
+        # print(lastCode)
+
+        if lastCode is not None:
+            lastCode.code = code
+            lastCode.code.save()
+        else:
+            UserRegisterCode.objects.create(userCode = userCode, code = code)
 
         send_mail( 
             subject=f'Код для завершения регистрации на сайте',
-            message=f'Для завершения регистрации на странице http://{self.request.META["HTTP_HOST"]}/new введите следующий код:\n\n  {code}',
+            message=f'Для завершения регистрации на странице http://{self.request.META["HTTP_HOST"]}/sign/code введите следующий код:\n\n  {code}',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email]
         )          
@@ -195,3 +208,35 @@ class LogoutView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)
+    
+class СheckingCode(FormView):
+    model = User, UserRegisterCode
+    form_class = СheckingCodeForm
+    template_name = 'boardapp/checking_code.html'
+    success_url = '/'
+  
+    def form_valid(self, form):
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            code = form.cleaned_data.get('code')
+
+            verify = UserRegisterCode.objects.filter(userCode__username=username, code=code).first()   
+
+            if verify is not None:
+                verify.userCode.is_active = True
+                verify.userCode.save()
+                verify.delete()
+            else:
+                return redirect('sign_code')
+            
+            user = authenticate(self.request, username=username, password=password)
+
+            print (username,password,verify,user,"-",verify.userCode.is_active,"-")
+
+            if user is not None:
+                login(self.request, user)
+            
+            else:
+                return redirect('sign_code')
+            
+            return super().form_valid(form)

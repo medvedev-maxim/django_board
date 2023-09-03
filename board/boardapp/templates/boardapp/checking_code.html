@@ -1,0 +1,35 @@
+{% extends 'layout/default.html' %}
+{% block content %}
+
+<h1>
+ Войти в систему
+</h1>
+
+<div>Вам на почту был выслан проверочный код, введите его чтобы завершить регистрацию</div>
+
+<form method="post" class="py-3">
+
+    {% csrf_token %}
+   
+    <table>
+      <tr>
+        <td style="padding: 10px">{{ form.username.label_tag }}</td>
+        <td style="padding: 10px">{{ form.username }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px">{{ form.password.label_tag }}</td>
+        <td style="padding: 10px">{{ form.password }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px">{{ form.code.label_tag }}</td>
+        <td style="padding: 10px">{{ form.code }}</td>
+      </tr>
+    </table>
+   
+    <button type="submit" class="btn btn-primary">
+      Вход
+    </button>
+
+</form>
+
+{% endblock content %}

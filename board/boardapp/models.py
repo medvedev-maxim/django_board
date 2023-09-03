@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 
 class Post(models.Model):
@@ -56,3 +57,6 @@ class Reply(models.Model):
     def __str__(self):
         return f'Комментарий #{self.pk} от {self.feedbackUser.username}'
 
+class UserRegisterCode(models.Model):
+    userCode = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_code')
+    code = models.CharField(max_length=128)

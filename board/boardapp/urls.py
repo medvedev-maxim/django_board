@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PostList, PostDetail, PostCreateView, PostUpdateView, PostDeleteView, ReplyList, accept_reply, delete_reply, AddReplySuccess, LoginView, LogoutView, RegisterView
+from .views import PostList, PostDetail, PostCreateView, PostUpdateView, PostDeleteView, ReplyList, accept_reply, delete_reply, AddReplySuccess, LoginView, LogoutView, RegisterView, СheckingCode
 from django.conf.urls.static import static
 # from django.contrib.auth.views import LoginView, LogoutView, RegisterView
  
@@ -16,5 +16,6 @@ urlpatterns = [
     path('add_reply_success/', AddReplySuccess.as_view(), name='add_reply_success'),
     path('sign/', LoginView.as_view(template_name='boardapp/login.html'), name='sign'),
     path('logout/', LogoutView.as_view(template_name='boardapp/logout.html'), name='logout'),
-    path('signup/', RegisterView.as_view(), name='signup')
+    path('signup/', RegisterView.as_view(), name='signup'),
+    path('sign/code', СheckingCode.as_view(), name='sign_code'),
 ]
